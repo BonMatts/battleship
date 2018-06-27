@@ -1,17 +1,17 @@
 class Ship
+
   def initialize(length, letter)
-    @length, @letter = length,letter
+    @length = length
+    @letter = letter
 
   end
-
-
 
   def place
     @start_point = nil
     while @start_point.nil?
 
       @start_point = StartingPoint.new
-      if @start_point.is_valid?(@length)
+      if @start_point.valid?(@length)
         break
       else
         @start_point = nil
@@ -22,26 +22,27 @@ class Ship
     @length.times do |i|
       @point = coordinate(@start_point, i)
       @coordinates[@point] = @letter
-
     end
+
     @coordinates
   end
 
+  private
 
   def coordinate(start_point, iterator)
     case start_point.orientation
-      #north, same x axis, increase y axis by iterator
-      when 0
-        [start_point.x, start_point.y + iterator]
-      #east, increase x axis by iterator, same y axis
-      when 1
-        [start_point.x + iterator, start_point.y]
-      #south, same x axis, decrease y axis by iterator
-      when 2
-        [start_point.x, start_point.y - iterator]
-      #west, decrease x axis by iterator, same y axis
-      when 3
-        [start_point.x - iterator, start_point.y]
+    # north, same x axis, increase y axis by iterator
+    when 0
+      [start_point.x, start_point.y + iterator]
+    # east, increase x axis by iterator, same y axis
+    when 1
+      [start_point.x + iterator, start_point.y]
+    # south, same x axis, decrease y axis by iterator
+    when 2
+      [start_point.x, start_point.y - iterator]
+    # west, decrease x axis by iterator, same y axis
+    when 3
+      [start_point.x - iterator, start_point.y]
     end
   end
 
@@ -57,39 +58,37 @@ class StartingPoint
     @orientation = rand(3)
   end
 
-  #does this position give us enough space to not fall off the board?
-  def is_valid? (length)
+  # does this position give us enough space to not fall off the board?
+  def valid? (length)
 
     case @orientation
-      # north
-      # if the starting point on the y axis  plus the length of the ship is less than 9, valid
-      when 0
-        @y + length <= 9
+    # north
+    # if the starting point on the y axis  plus the length of the ship is less than 9, valid
+    when 0
+      @y + length <= 9
 
-      # east
-      # if the starting point on the x axis  plus the length of the ship is less than 9, it is valid
-      when 1
-        @x + length <= 9
+    # east
+    # if the starting point on the x axis  plus the length of the ship is less than 9, it is valid
+    when 1
+      @x + length <= 9
 
-      # south
-      # if the starting point on the y axis minus the ship length is greater than 0, it is valid
-      when 2
-        @y - length >= 0
+    # south
+    # if the starting point on the y axis minus the ship length is greater than 0, it is valid
+    when 2
+      @y - length >= 0
 
-      # west
-      # if the starting point on the y axis minus the ship length is greater than 0, it is valid
-      when 3
-        @x - length >= 0
+    # west
+    # if the starting point on the y axis minus the ship length is greater than 0, it is valid
+    when 3
+      @x - length >= 0
     end
   end
 end
 
 class Board
 
-
   def initialize
-    self.placement = Hash.new
-
+    @placement = {}
   end
 
   attr_accessor :placement
@@ -108,17 +107,6 @@ class Board
       end
     end
   end
-  def add_ship?(coordinates)
-    @merged = @placement.merge(coordinates){|key, old, new| break}
-
-    if @merged.nil?
-      false
-    else
-      self.placement = @merged
-      true
-    end
-  end
-
 
   def display
     stringify.each do |line|
@@ -129,14 +117,25 @@ class Board
 
   private
 
+  def add_ship?(coordinates)
+
+    @merged = @placement.merge(coordinates){ break}
+    if @merged.nil?
+      false
+    else
+      @placement = @merged
+      true
+    end
+  end
+
   def stringify
     @lines = []
     (0..9).each do |x|
       @line = ''
-     (0..9).each do |y|
-       @k = [x, y]
-       @placement.key?(@k)? @line += @placement[@k]:@line += '.'
-     end
+      (0..9).each do |y|
+        @k = [x, y]
+        @placement.key?(@k) ? (@line += @placement[@k]):(@line += '.')
+      end
       @lines << @line
     end
     @lines
@@ -144,14 +143,9 @@ class Board
 
 end
 
-@ships = [Ship.new(5, 'c'), Ship.new(4, 'b'), Ship.new(3, 's'), Ship.new(3, 'd'), Ship.new(2, 't')]
+@ships = [Ship.new(5, 'c'), Ship.new(4, 'b'), Ship.new(3, 's'),
+          Ship.new(3, 'd'), Ship.new(2, 't')]
 @board = Board.new
 
 @board.add_ships(@ships)
 @board.display
-
-
-
-
-
-
